@@ -1,7 +1,7 @@
 <template>
   <h1>Shopping Cart</h1>
   <div v-if="cartItems.length > 0">
-    <ShoppingCartList :products="cartItems" />
+    <ShoppingCartList @remove-from-cart="removeFromCart" :products="cartItems" />
     <button class="checkout-button">Proceed to checkout</button>
   </div>
   <div v-if="cartItems.length === 0">
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { cartItems } from '@/temp_data';
+import axios from 'axios'
 import ShoppingCartList from '@/components/ShoppingCartList.vue'
 
 export default {
@@ -18,8 +18,20 @@ export default {
   components: { ShoppingCartList },
   data() {
     return {
-      cartItems
+      cartItems: []
     }
+  },
+  methods: {
+    async removeFromCart(productId) {
+      const response = await axios.delete(`/api/users/12345/cart/${productId}`);
+      const updatedCart = response.data;
+      this.cartItems = updatedCart;
+    }
+  },
+  async created() {
+    const response = await axios.get('/api/users/12345/cart')
+    const cartItems = response.data
+    this.cartItems = cartItems
   }
 }
 </script>
